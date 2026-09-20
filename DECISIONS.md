@@ -18,27 +18,32 @@ e por que (item 10.3 do desafio).
   toda taxa base seguem a tabela de configuração vigente (fx_rates /
   base_rates); não há override manual por transação.
 
-## Escopo reduzido conscientemente para investir em decisão (nível Staff/TL)
+- **Timeout via `Future#get` em vez do `TimeLimiter` do Resilience4j**
+  (`ResilientFxRateGateway`): o `TimeLimiter` anotado exige que o método
+  retorne `CompletableFuture`, o que forçaria toda a cadeia de chamada
+  (`FxRateAdminService`, potencialmente `ReceivableService`) a virar
+  assíncrona só por causa desta dependência externa. Optamos por um
+  timeout manual, síncrono, documentado no javadoc da classe.
+
+## Ainda pendente (nível Staff/TL restante)
 
 Conforme seção 6 do desafio, no nível Staff/Tech Lead o escopo de
-implementação pode ser reduzido em favor de ADRs, design de escala e o
-exercício de incidente. Itens abaixo foram *implementados como skeleton*
-(estrutura + contrato definidos) mas não como funcionalidade completa nesta
-primeira entrega:
+implementação pode ser reduzido em favor de ADRs e do exercício de
+incidente. O que falta nesta entrega:
 
-- Camada de API REST completa (controllers) — o domínio, a persistência e o
-  motor de precificação estão implementados e testados (golden cases); os
-  endpoints HTTP (`POST /receivables`, `POST /settlements`,
-  `GET /settlements`) ainda não foram escritos nesta rodada.
-- Idempotência do endpoint de liquidação — a constraint UNIQUE em
-  `settlements.idempotency_key` já está no schema (V4), mas o service que a
-  usa (`SettlementService`) ainda não foi implementado.
-- Optimistic locking — o campo `@Version` já existe em `Receivable`, mas o
-  teste que demonstra o conflito concorrente ainda não foi escrito.
-- Observabilidade, resiliência (circuit breaker no câmbio) e CI — planejados,
-  não implementados nesta rodada.
+- **Frontend funcional** — o painel do operador é só o skeleton do
+  formulário; não há chamada real à API nem simulação em tempo real.
+- **`AI_USAGE.md`** — engenharia da colaboração com IA (seção 7 do desafio).
+- **ADRs** para as decisões mais difíceis (ex.: MariaDB vs. alternativas,
+  rate lock na aquisição vs. na liquidação).
+- **Design de alta escala (1M tx/min)** e **exercício de incidente (Anexo B)**
+  — os itens mais "documento puro" do nível Staff/TL, deixados por último
+  porque dependem menos de o código já existir e mais de tempo de escrita.
 
-Justificativa: priorizar a corretude do núcleo de cálculo (maior peso da
-rubrica em conjunto com domínio do negócio) e deixar a superfície HTTP e a
-infraestrutura operacional para as próximas iterações, documentadas aqui em
-vez de entregues como código apressado.
+O que **já está pronto** e não deveria ser reconstruído: domínio,
+persistência (Flyway), motor de precificação (golden cases), idempotência +
+optimistic locking (`SettlementService`, testado com concorrência real),
+controllers REST + tratamento de erro, observabilidade (logs estruturados +
+métricas Micrometer), resiliência na integração de câmbio, CI (GitHub
+Actions), `REVIEW.md` (Anexo A) e diagramas C4 (níveis 1 e 2,
+`docs/c4-diagrams.md`).

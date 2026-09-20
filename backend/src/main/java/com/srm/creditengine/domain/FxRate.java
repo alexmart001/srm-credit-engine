@@ -39,6 +39,16 @@ public class FxRate {
         this.validFrom = validFrom;
     }
 
+    /**
+     * Encerra a vigencia desta taxa - chamado ao publicar uma taxa mais
+     * recente para o mesmo par, para nunca deixar duas linhas "vigentes"
+     * (validTo IS NULL) coexistindo para o mesmo par (ver
+     * FxRateRepository#findEffectiveRate).
+     */
+    public void closeValidityAt(Instant to) {
+        this.validTo = to;
+    }
+
     public Long getId() { return id; }
     public String getCurrencyPair() { return currencyPair; }
     public BigDecimal getRate() { return rate; }

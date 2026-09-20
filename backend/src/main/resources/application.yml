@@ -39,3 +39,27 @@ springdoc:
 logging:
   level:
     com.srm.creditengine: INFO
+
+# Resiliencia na integracao (mockada) de cambio - item 6 do desafio.
+# O timeout e' implementado manualmente em ResilientFxRateGateway (ver
+# javadoc da classe para o motivo); aqui configuramos apenas circuit
+# breaker e retry, que sao anotacao-friendly no Resilience4j.
+resilience4j:
+  circuitbreaker:
+    instances:
+      fxProvider:
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+        record-exceptions:
+          - com.srm.creditengine.exception.FxProviderUnavailableException
+  retry:
+    instances:
+      fxProvider:
+        max-attempts: 3
+        wait-duration: 200ms
+        retry-exceptions:
+          - com.srm.creditengine.exception.FxProviderUnavailableException

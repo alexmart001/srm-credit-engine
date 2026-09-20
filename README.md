@@ -84,10 +84,43 @@ srm-credit-engine/
 ✅ CI (GitHub Actions) — build + testes + checkstyle (backend), build (frontend)
 ✅ Observabilidade — logs estruturados (SLF4J fluente + Spring Boot ECS) e métricas de negócio
    (`srm.settlements.total`, `srm.settlement.duration`, `srm.pricing.duration` em `/actuator/prometheus`)
+✅ Resiliência — timeout + retry + circuit breaker na integração (mockada) de câmbio
+✅ Diagramas C4 (níveis 1 e 2) — `docs/c4-diagrams.md`
+✅ Endpoints administrativos de câmbio: `POST /admin/fx-rates` (manual) e
+   `POST /admin/fx-rates/{base}/{quote}/refresh` (integração mockada resiliente)
 ⬜ Frontend funcional (simulação em tempo real) — só o skeleton do formulário existe
-⬜ Resiliência (timeout/retry/circuit breaker na integração de câmbio)
-⬜ AI_USAGE.md, ADRs, diagrama C4
-⬜ Endpoint de cadastro de câmbio/taxa base (hoje só populados via repositório/seed — sem rota admin)
+⬜ AI_USAGE.md, ADRs
+
+## Resiliência (integração de câmbio)
+
+Decisão central, documentada em `ReceivableService`: **a aquisição e a
+liquidação nunca chamam o provedor externo de câmbio diretamente** — ambas
+leem a taxa já persistida localmente (`fx_rates`). Quem fala com o provedor
+externo (mockado, `MockExternalFxRateProvider`) é só o fluxo administrativo
+(`FxRateAdminService` + `ResilientFxRateGateway`), protegido por:
+
+- **Circuit breaker** (`@CircuitBreaker`, Resilience4j) — para de insistir
+  num provedor fora do ar.
+- **Retry** (`@Retry`, Resilience4j) — cobre falhas transitórias curtas.
+- **Timeout** — implementado manualmente (`Future#get` com prazo), não via
+  `TimeLimiter` do Resilience4j; o motivo (evitar forçar toda a cadeia a
+  virar assíncrona por causa de uma única dependência externa) está
+  documentado no javadoc de `ResilientFxRateGateway`.
+
+Se as três camadas se esgotarem, `FxRateAdminService` degrada
+graciosamente: mantém a última taxa conhecida, loga o evento, e **nunca
+propaga erro** para quem chamou o refresh. Testado de ponta a ponta em
+`FxRateAdminServiceIT` (provedor saudável vs. provedor em outage).
+
+**Resposta à pergunta do item 6 do desafio** ("o que acontece se o provedor
+de taxa cai no meio de uma liquidação?"): nada acontece com a liquidação —
+ela nem consulta o provedor. O único efeito de uma queda é a atualização da
+taxa local ficar pausada; o sistema continua operando normalmente com a
+última cotação boa conhecida.
+
+## Diagramas C4
+
+Níveis 1 (Contexto) e 2 (Contêineres) em Mermaid: [`docs/c4-diagrams.md`](./docs/c4-diagrams.md).
 
 ## Observabilidade
 

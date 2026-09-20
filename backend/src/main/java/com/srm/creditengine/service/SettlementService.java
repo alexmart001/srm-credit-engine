@@ -18,6 +18,7 @@ import com.srm.creditengine.repository.SettlementRepository;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
+import org.springframework.data.domain.Limit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -201,7 +202,8 @@ public class SettlementService {
     private BigDecimal resolveBaseRate(Receivable receivable) {
         ReceivableType type = receivable.getType();
         Currency currency = receivable.getPaymentCurrency();
-        BaseRate baseRate = baseRateRepository.findEffectiveRate(type, currency, Instant.now())
+        BaseRate baseRate = baseRateRepository
+                .findEffectiveRate(type, currency, Instant.now(), Limit.of(1))
                 .orElseThrow(() -> new BaseRateNotFoundException(type, currency));
         return baseRate.getRate();
     }
