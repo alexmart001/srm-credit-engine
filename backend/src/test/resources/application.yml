@@ -1,0 +1,23 @@
+# Configuracao especifica de teste: usa H2 em memoria com schema gerado
+# diretamente pelo Hibernate (ddl-auto=create-drop), em vez das migrations
+# Flyway (que usam sintaxe especifica do MariaDB, ex. DATETIME(6) ON UPDATE
+# CURRENT_TIMESTAMP(6)). Flyway continua sendo a fonte de verdade do schema
+# em dev/prod (docker-compose); aqui priorizamos testes rapidos e portaveis.
+spring:
+  datasource:
+    url: jdbc:h2:mem:srm_test;DB_CLOSE_DELAY=-1;MODE=MySQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: false
+
+logging:
+  level:
+    com.srm.creditengine: DEBUG
