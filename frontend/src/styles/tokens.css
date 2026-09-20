@@ -1,0 +1,41 @@
+/*
+  Paleta pensada para um terminal de mesa de operacoes financeira, nao um
+  dashboard SaaS: fundo escuro grafite-azulado (reduz fadiga visual em uso
+  prolongado, comum em telas de trading), acentos contidos, numeros em fonte
+  monoespacada com algarismos tabulares (alinhamento de casas decimais e'
+  uma necessidade funcional aqui, nao decoracao).
+*/
+:root {
+  /* Superficies */
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface-alt: #1c2229;
+  --border: #2b3340;
+
+  /* Texto */
+  --text-primary: #e6edf3;
+  --text-secondary: #8b98a5;
+  --text-tertiary: #5c6773;
+
+  /* Acentos */
+  --accent-value: #d4a72c;   /* destaque para valores/desagio - evoca moeda/ouro */
+  --accent-action: #3b82c4;  /* acoes interativas - azul-aco, contido */
+  --accent-action-hover: #4f95d6;
+  --danger: #e5484d;
+  --success: #3fb950;
+
+  /* Tipografia */
+  --font-ui: "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  /* Espacamento */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  --radius: 6px;
+}

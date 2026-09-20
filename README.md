@@ -88,8 +88,35 @@ srm-credit-engine/
 ✅ Diagramas C4 (níveis 1 e 2) — `docs/c4-diagrams.md`
 ✅ Endpoints administrativos de câmbio: `POST /admin/fx-rates` (manual) e
    `POST /admin/fx-rates/{base}/{quote}/refresh` (integração mockada resiliente)
-⬜ Frontend funcional (simulação em tempo real) — só o skeleton do formulário existe
+✅ `POST /pricing/simulate` — simulação somente leitura (não persiste nada),
+   usada pelo painel do operador em tempo real
+✅ Frontend funcional — painel de aquisição com simulação em tempo real
+   (debounce), fluxo completo aquisição → liquidação, extrato paginado com
+   filtros (React + TypeScript, build validado com `tsc` + `vite build`)
 ⬜ AI_USAGE.md, ADRs
+
+## Frontend
+
+Duas telas (abas), sem router nem estado global — `useState` chega para o
+escopo atual (item 4.2.3 do desafio: "estado global só se justificar"):
+
+- **Nova operação:** formulário de aquisição com simulação em tempo real
+  (`POST /pricing/simulate`, debounced 400ms — não persiste nada) ao lado do
+  formulário. Ao confirmar, `POST /receivables` (aquisição real, trava
+  câmbio) e depois `POST /receivables/{id}/settlements` (liquidação, com
+  `Idempotency-Key` gerada via `crypto.randomUUID()`).
+- **Extrato:** `GET /settlements` paginado (server-side) com filtro por
+  cedente e moeda (item 4.1.6 / 4.2.2).
+
+Valores monetários trafegam como `string` de ponta a ponta (nunca `number`)
+— só viram `Number` no exato momento de formatar para exibição via
+`Intl.NumberFormat`, nunca para calcular (a mesma disciplina do backend,
+espelhada no frontend).
+
+Design: paleta escura de terminal financeiro (não o dashboard SaaS
+genérico), tipografia IBM Plex Sans/Mono com algarismos tabulares
+alinhados à direita nos valores — decisão funcional (alinhamento de casas
+decimais em uma tela de operação financeira), não estética gratuita.
 
 ## Resiliência (integração de câmbio)
 

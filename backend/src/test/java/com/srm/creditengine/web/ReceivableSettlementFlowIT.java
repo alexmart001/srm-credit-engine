@@ -96,6 +96,24 @@ class ReceivableSettlementFlowIT {
     }
 
     @Test
+    void simulacaoNaoPersisteNadaEBateComOGoldenCaseC1() throws Exception {
+        var simulateRequest = Map.of(
+                "type", "DUPLICATA_MERCANTIL",
+                "faceValue", "100000.00",
+                "faceCurrency", "BRL",
+                "termMonths", 3,
+                "paymentCurrency", "BRL"
+        );
+
+        mockMvc.perform(post("/pricing/simulate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(simulateRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.presentValue").value("92859.94"))
+                .andExpect(jsonPath("$.discount").value("7140.06"));
+    }
+
+    @Test
     void deveRetornar400ComErroPorCampoQuandoRequestInvalida() throws Exception {
         var invalidRequest = Map.of(
                 "cedente", "",

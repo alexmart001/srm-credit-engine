@@ -1,0 +1,318 @@
+@import "./tokens.css";
+
+* { box-sizing: border-box; }
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Numeros: sempre monoespacado com algarismos tabulares, alinhados a
+   direita - convencao de qualquer tela financeira, aqui e' funcional
+   (colunas decimais alinhadas), nao estilistica. */
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  font-feature-settings: "tnum";
+}
+
+.app-shell {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-5) var(--space-7);
+}
+
+.app-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border);
+}
+
+.app-header h1 {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+
+.app-header .subtitle {
+  color: var(--text-tertiary);
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.tabs {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.tab-button {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.tab-button:hover { color: var(--text-primary); }
+
+.tab-button[data-active="true"] {
+  border-color: var(--accent-action);
+  color: var(--text-primary);
+  background: rgba(59, 130, 196, 0.08);
+}
+
+.panel-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: var(--space-5);
+  align-items: start;
+}
+
+@media (max-width: 760px) {
+  .panel-grid { grid-template-columns: 1fr; }
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-5);
+}
+
+.card h2 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: none;
+  margin: 0 0 var(--space-4);
+  letter-spacing: 0.01em;
+}
+
+.field {
+  margin-bottom: var(--space-4);
+}
+
+.field label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-1);
+}
+
+.field-error {
+  color: var(--danger);
+  font-size: 12px;
+  margin-top: var(--space-1);
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 100px;
+  gap: var(--space-2);
+}
+
+input, select {
+  width: 100%;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  border-radius: var(--radius);
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-ui);
+  font-size: 13px;
+}
+
+input:focus, select:focus, button:focus-visible {
+  outline: 2px solid var(--accent-action);
+  outline-offset: 1px;
+}
+
+input.num-input {
+  font-family: var(--font-mono);
+  text-align: right;
+}
+
+button.primary {
+  background: var(--accent-action);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.15s;
+}
+
+button.primary:hover:not(:disabled) { background: var(--accent-action-hover); }
+button.primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+button.secondary {
+  background: transparent;
+  border: 1px solid var(--accent-value);
+  color: var(--accent-value);
+  border-radius: var(--radius);
+  padding: var(--space-2) var(--space-4);
+  font-size: 13px;
+  cursor: pointer;
+  width: 100%;
+}
+
+button.ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  border-radius: var(--radius);
+  padding: var(--space-2) var(--space-3);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.sim-result {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.sim-figure { text-align: right; }
+
+.sim-figure .label {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-bottom: 2px;
+}
+
+.sim-figure .value {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 22px;
+  color: var(--accent-value);
+}
+
+.sim-figure .value.small {
+  font-size: 15px;
+  color: var(--text-primary);
+}
+
+.sim-meta {
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.sim-meta .row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.sim-meta .row span:last-child {
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+}
+
+.sim-placeholder {
+  color: var(--text-tertiary);
+  font-size: 13px;
+  text-align: center;
+  padding: var(--space-6) 0;
+}
+
+.banner {
+  border-radius: var(--radius);
+  padding: var(--space-4);
+  font-size: 13px;
+  margin-bottom: var(--space-4);
+}
+
+.banner.success {
+  background: rgba(63, 185, 80, 0.1);
+  border: 1px solid rgba(63, 185, 80, 0.3);
+  color: var(--success);
+}
+
+.banner.error {
+  background: rgba(229, 72, 77, 0.1);
+  border: 1px solid rgba(229, 72, 77, 0.3);
+  color: var(--danger);
+}
+
+.banner .details { color: var(--text-primary); margin-top: var(--space-2); }
+.banner button.ghost { margin-top: var(--space-3); }
+
+/* --- Extrato --- */
+
+.filters {
+  display: flex;
+  gap: var(--space-3);
+  align-items: end;
+  margin-bottom: var(--space-5);
+  flex-wrap: wrap;
+}
+
+.filters .field { margin-bottom: 0; min-width: 160px; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+thead th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--border);
+}
+
+thead th.num { text-align: right; }
+
+tbody td {
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--border);
+}
+
+tbody tr:hover { background: var(--surface-alt); }
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--space-4);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.pagination .controls {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.empty-state {
+  text-align: center;
+  padding: var(--space-7) 0;
+  color: var(--text-tertiary);
+  font-size: 13px;
+}

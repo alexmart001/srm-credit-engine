@@ -1,29 +1,30 @@
 import { useState } from "react";
+import { AcquisitionPanel } from "./components/AcquisitionPanel";
+import { SettlementsExtract } from "./components/SettlementsExtract";
 
-/**
- * Painel do operador (item 4.2.1 do desafio) - esqueleto inicial.
- * TODO: ligar ao endpoint de simulacao do backend (POST /pricing/simulate),
- * tratando presentValue como string (nunca number) para preservar precisao.
- */
+type Tab = "nova" | "extrato";
+
 export default function App() {
-  const [faceValue, setFaceValue] = useState("");
+  const [tab, setTab] = useState<Tab>("nova");
 
   return (
-    <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 480 }}>
-      <h1>SRM Credit Engine</h1>
-      <p>Painel do operador - simulacao de deságio (skeleton inicial)</p>
+    <div className="app-shell">
+      <header className="app-header">
+        <div>
+          <h1>SRM Credit Engine</h1>
+          <div className="subtitle">Mesa de operações — precificação e liquidação de recebíveis</div>
+        </div>
+        <nav className="tabs">
+          <button className="tab-button" data-active={tab === "nova"} onClick={() => setTab("nova")}>
+            Nova operação
+          </button>
+          <button className="tab-button" data-active={tab === "extrato"} onClick={() => setTab("extrato")}>
+            Extrato
+          </button>
+        </nav>
+      </header>
 
-      <label>
-        Valor de face (R$)
-        <input
-          value={faceValue}
-          onChange={(e) => setFaceValue(e.target.value)}
-          placeholder="100000.00"
-        />
-      </label>
-
-      {/* TODO: campos de tipo, prazo (meses), moeda de pagamento */}
-      {/* TODO: chamada à API e exibição do valor líquido simulado */}
+      {tab === "nova" ? <AcquisitionPanel /> : <SettlementsExtract />}
     </div>
   );
 }
