@@ -80,16 +80,48 @@ srm-credit-engine/
 ✅ SPEC.md e DECISIONS.md
 ✅ Teste de optimistic locking com conflito concorrente real (dois threads)
 ✅ Teste end-to-end via HTTP (MockMvc) cobrindo aquisição → liquidação → idempotência → cross-currency
+✅ REVIEW.md (Anexo A) — 12 achados ordenados por severidade
+✅ CI (GitHub Actions) — build + testes + checkstyle (backend), build (frontend)
+✅ Observabilidade — logs estruturados (SLF4J fluente + Spring Boot ECS) e métricas de negócio
+   (`srm.settlements.total`, `srm.settlement.duration`, `srm.pricing.duration` em `/actuator/prometheus`)
 ⬜ Frontend funcional (simulação em tempo real) — só o skeleton do formulário existe
-⬜ Observabilidade (logs estruturados, métricas), resiliência (circuit breaker no câmbio), CI
-⬜ REVIEW.md (Anexo A), AI_USAGE.md, ADRs
+⬜ Resiliência (timeout/retry/circuit breaker na integração de câmbio)
+⬜ AI_USAGE.md, ADRs, diagrama C4
 ⬜ Endpoint de cadastro de câmbio/taxa base (hoje só populados via repositório/seed — sem rota admin)
+
+## Observabilidade
+
+- **Logs estruturados:** `SettlementService` usa a API fluente do SLF4J
+  (`log.atInfo().addKeyValue(...)`). Localmente aparecem como texto legível;
+  no `docker-compose` (`LOGGING_STRUCTURED_FORMAT_CONSOLE=ecs`), o próprio
+  Spring Boot 3.4+ converte para JSON (Elastic Common Schema) sem
+  dependência extra.
+- **Métricas de negócio (Micrometer → `/actuator/prometheus`):**
+  - `srm_settlements_total{outcome=...}` — contador por desfecho
+    (`success`, `idempotent_replay`, `idempotency_race_resolved`,
+    `already_settled`, `concurrency_conflict`, `receivable_not_found`,
+    `base_rate_not_found`)
+  - `srm_settlement_duration_seconds{outcome=...}` — latência total por desfecho
+  - `srm_pricing_duration_seconds` — latência isolada do `PricingEngine`
+    (exemplo citado no item 6 do desafio: "latência do motor")
+
+## CI
+
+`.github/workflows/ci.yml` roda em todo push/PR para `main`:
+- **backend:** `mvn compile` → `mvn test` (golden cases + `SettlementService`
+  + concorrência + fluxo HTTP) → `checkstyle:checkstyle` (modo relatório,
+  não bloqueia o build ainda — ver comentário no `pom.xml`)
+- **frontend:** `npm ci` → `npm run build` (tsc + vite)
+
+Nota: `npm audit` acusa uma vulnerabilidade moderada em `esbuild` (só afeta
+o dev server do Vite, não o build de produção); resolver exigiria upgrade
+major do Vite, deixado como item futuro em vez de feito às cegas.
 
 ## Observações importantes para a defesa
 
-- **Testes não foram compilados/rodados neste ambiente de geração** (sandbox sem acesso ao Maven
-  Central). A aritmética do `PricingEngine` foi validada separadamente em Python (bate com os
-  golden cases). **Rode `mvn test` localmente antes de considerar isso pronto.**
+- `mvn compile` e `mvn test` rodados localmente (Java 21 / Spring Boot 3.5.16) sem erros -
+  cobre golden cases, `SettlementService` (idempotência + optimistic locking) e o fluxo HTTP
+  end-to-end (incluindo o caso cross-currency C3).
 - O `GET /settlements` usa JPQL com `JOIN ... ON` (Settlement não tem relacionamento JPA mapeado
   para Receivable, de propósito — é uma entidade imutável e "burra"). Se o volume justificar,
   trocar por `@Query(nativeQuery = true)` é o próximo passo natural (diferencial pleno+, item 4.1.6).

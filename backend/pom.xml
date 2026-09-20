@@ -38,6 +38,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
+        <!-- Expoe /actuator/prometheus com as metricas de negocio do SettlementService -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
 
         <!-- Persistencia: MariaDB + Flyway -->
         <dependency>
@@ -90,6 +95,26 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                </configuration>
+            </plugin>
+
+            <!--
+                Checkstyle em modo RELATORIO (goal "checkstyle", nao "check"):
+                nao bloqueia o build. E' o primeiro passo pratico de adocao de
+                linter num codigo que ainda nao foi auditado contra ele -
+                virar gate obrigatorio (goal "check" + failOnViolation=true,
+                bound a "verify") e' o proximo passo natural, depois de uma
+                primeira rodada de limpeza guiada pelo relatorio.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.5.0</version>
+                <configuration>
+                    <configLocation>google_checks.xml</configLocation>
+                    <consoleOutput>true</consoleOutput>
+                    <violationSeverity>warning</violationSeverity>
+                    <failOnViolation>false</failOnViolation>
                 </configuration>
             </plugin>
         </plugins>

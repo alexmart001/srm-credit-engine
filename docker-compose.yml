@@ -29,6 +29,11 @@ services:
       DB_NAME: srm_credit_engine
       DB_USER: srm
       DB_PASSWORD: srm
+      # Logging estruturado (JSON, formato Elastic Common Schema) - nativo do
+      # Spring Boot 3.4+. Local/IDE continua em texto legivel (nao seta essa
+      # env var); aqui simula o formato que um coletor de logs (ELK, Loki)
+      # esperaria em producao.
+      LOGGING_STRUCTURED_FORMAT_CONSOLE: ecs
     ports:
       - "8080:8080"
 

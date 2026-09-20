@@ -13,3 +13,6 @@ frontend/dist/
 
 # OS
 .DS_Store
+
+# Artefatos de build TS gerados por tsc -b no diretorio src (nao deveriam existir ali)
+frontend/*.tsbuildinfo

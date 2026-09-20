@@ -10,6 +10,8 @@ import com.srm.creditengine.repository.BaseRateRepository;
 import com.srm.creditengine.repository.ReceivableRepository;
 import com.srm.creditengine.repository.SettlementRepository;
 
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -39,6 +41,7 @@ class SettlementServiceTest {
     @Mock private SettlementRepository settlementRepository;
 
     private PricingEngine pricingEngine; // instancia real - motor ja validado pelos golden cases
+    private MeterRegistry meterRegistry;  // SimpleMeterRegistry real - metricas nao precisam de mock
     private SettlementService service;
 
     @BeforeEach
@@ -48,7 +51,9 @@ class SettlementServiceTest {
                 new DuplicataMercantilSpreadStrategy(),
                 new ChequePreDatadoSpreadStrategy()
         )));
-        service = new SettlementService(receivableRepository, baseRateRepository, settlementRepository, pricingEngine);
+        meterRegistry = new SimpleMeterRegistry();
+        service = new SettlementService(receivableRepository, baseRateRepository, settlementRepository,
+                pricingEngine, meterRegistry);
     }
 
     private Receivable pendingReceivable() {
@@ -84,6 +89,10 @@ class SettlementServiceTest {
         assertThat(receivable.getStatus()).isEqualTo(ReceivableStatus.LIQUIDADO);
         verify(settlementRepository).saveAndFlush(any(Settlement.class));
         verify(receivableRepository).saveAndFlush(receivable);
+
+        // observabilidade: metrica de negocio registrada com o desfecho correto
+        assertThat(meterRegistry.counter("srm.settlements.total", "outcome", "success").count())
+                .isEqualTo(1.0);
     }
 
     @Test
