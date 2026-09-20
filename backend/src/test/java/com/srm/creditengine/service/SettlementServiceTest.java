@@ -77,7 +77,7 @@ class SettlementServiceTest {
 
         when(settlementRepository.findByIdempotencyKey("key-1")).thenReturn(Optional.empty());
         when(receivableRepository.findById(1L)).thenReturn(Optional.of(receivable));
-        when(baseRateRepository.findEffectiveRate(any(), any(), any())).thenReturn(Optional.of(baseRate));
+        when(baseRateRepository.findEffectiveRate(any(), any(), any(), any())).thenReturn(Optional.of(baseRate));
         when(settlementRepository.saveAndFlush(any(Settlement.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
         when(receivableRepository.saveAndFlush(any(Receivable.class)))
@@ -141,7 +141,7 @@ class SettlementServiceTest {
 
         when(settlementRepository.findByIdempotencyKey("key-1")).thenReturn(Optional.empty());
         when(receivableRepository.findById(1L)).thenReturn(Optional.of(receivable));
-        when(baseRateRepository.findEffectiveRate(any(), any(), any())).thenReturn(Optional.empty());
+        when(baseRateRepository.findEffectiveRate(any(), any(), any(), any())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.settle(new SettlementCommand(1L, "key-1")))
                 .isInstanceOf(BaseRateNotFoundException.class);
@@ -162,7 +162,7 @@ class SettlementServiceTest {
                 .thenReturn(Optional.empty())       // 1a checagem (rapida): ainda nao existe
                 .thenReturn(Optional.of(doVencedor)); // apos a corrida: o vencedor ja commitou
         when(receivableRepository.findById(1L)).thenReturn(Optional.of(receivable));
-        when(baseRateRepository.findEffectiveRate(any(), any(), any())).thenReturn(Optional.of(baseRate));
+        when(baseRateRepository.findEffectiveRate(any(), any(), any(), any())).thenReturn(Optional.of(baseRate));
         when(settlementRepository.saveAndFlush(any(Settlement.class)))
                 .thenThrow(new DataIntegrityViolationException("unique constraint violated"));
 
@@ -181,7 +181,7 @@ class SettlementServiceTest {
 
         when(settlementRepository.findByIdempotencyKey("key-2")).thenReturn(Optional.empty());
         when(receivableRepository.findById(1L)).thenReturn(Optional.of(receivable));
-        when(baseRateRepository.findEffectiveRate(any(), any(), any())).thenReturn(Optional.of(baseRate));
+        when(baseRateRepository.findEffectiveRate(any(), any(), any(), any())).thenReturn(Optional.of(baseRate));
         when(settlementRepository.saveAndFlush(any(Settlement.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
         when(receivableRepository.saveAndFlush(any(Receivable.class)))

@@ -93,7 +93,12 @@ srm-credit-engine/
 ✅ Frontend funcional — painel de aquisição com simulação em tempo real
    (debounce), fluxo completo aquisição → liquidação, extrato paginado com
    filtros (React + TypeScript, build validado com `tsc` + `vite build`)
-⬜ AI_USAGE.md, ADRs
+✅ `AI_USAGE.md` — engenharia da colaboração com IA (3 casos concretos de
+   erro detectado, o que não foi delegado)
+✅ ADRs (`docs/adr/`) — banco relacional, monólito modular, rate lock de
+   câmbio na aquisição, comunicação síncrona vs. EDA
+✅ Design de alta escala (1M tx/min) — `docs/scale-design.md`
+⬜ Post-mortem do Anexo B — único item Staff/TL ainda pendente
 
 ## Frontend
 

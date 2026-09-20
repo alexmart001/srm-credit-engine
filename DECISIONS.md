@@ -27,23 +27,22 @@ e por que (item 10.3 do desafio).
 
 ## Ainda pendente (nível Staff/TL restante)
 
-Conforme seção 6 do desafio, no nível Staff/Tech Lead o escopo de
-implementação pode ser reduzido em favor de ADRs e do exercício de
-incidente. O que falta nesta entrega:
+Um único item do desafio ainda não foi tratado:
 
-- **Frontend funcional** — o painel do operador é só o skeleton do
-  formulário; não há chamada real à API nem simulação em tempo real.
-- **`AI_USAGE.md`** — engenharia da colaboração com IA (seção 7 do desafio).
-- **ADRs** para as decisões mais difíceis (ex.: MariaDB vs. alternativas,
-  rate lock na aquisição vs. na liquidação).
-- **Design de alta escala (1M tx/min)** e **exercício de incidente (Anexo B)**
-  — os itens mais "documento puro" do nível Staff/TL, deixados por último
-  porque dependem menos de o código já existir e mais de tempo de escrita.
+- **Exercício de incidente (Anexo B)** — post-mortem por escrito de um
+  incidente hipotético de liquidações duplicadas.
+
+Deixado por último porque o `REVIEW.md` (seção 3 deste documento) já
+adianta boa parte da causa raiz, o que exige cuidado para não fazer do
+post-mortem uma repetição do review em vez de um exercício de linha do
+tempo, contenção e prevenção sistêmica.
 
 O que **já está pronto** e não deveria ser reconstruído: domínio,
 persistência (Flyway), motor de precificação (golden cases), idempotência +
 optimistic locking (`SettlementService`, testado com concorrência real),
-controllers REST + tratamento de erro, observabilidade (logs estruturados +
-métricas Micrometer), resiliência na integração de câmbio, CI (GitHub
-Actions), `REVIEW.md` (Anexo A) e diagramas C4 (níveis 1 e 2,
-`docs/c4-diagrams.md`).
+controllers REST + tratamento de erro, endpoint de simulação
+(`POST /pricing/simulate`), frontend funcional, observabilidade (logs
+estruturados + métricas Micrometer), resiliência na integração de câmbio,
+CI (GitHub Actions), `REVIEW.md` (Anexo A), `AI_USAGE.md`, ADRs
+(`docs/adr/`), diagramas C4 (`docs/c4-diagrams.md`) e o design de alta
+escala (`docs/scale-design.md`).
