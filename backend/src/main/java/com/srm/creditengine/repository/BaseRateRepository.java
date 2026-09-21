@@ -42,4 +42,8 @@ public interface BaseRateRepository extends JpaRepository<BaseRate, Long> {
                                           @Param("currency") Currency currency,
                                           @Param("at") Instant at,
                                           Limit limit);
+
+    /** A linha "vigente" atual (sem data de encerramento) - usada ao publicar uma nova taxa. */
+    Optional<BaseRate> findFirstByReceivableTypeAndCurrencyAndValidToIsNullOrderByValidFromDesc(
+            ReceivableType type, Currency currency);
 }

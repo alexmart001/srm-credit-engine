@@ -25,7 +25,50 @@ docker compose up --build
 - Backend: http://localhost:8080 (Swagger UI em `/swagger-ui.html`)
 - Frontend: http://localhost:5173
 - MariaDB: porta 3306 (schema `srm_credit_engine`, aplicado automaticamente
-  pelo Flyway na subida do backend)
+  pelo Flyway na subida do backend, **incluindo taxas iniciais** — ver V5
+  abaixo)
+
+### Sequência para testar a interface web
+
+1. `docker compose up --build` e aguarde os três containers subirem
+   (`mariadb` precisa passar no healthcheck antes do `backend` iniciar —
+   o compose já orquestra essa ordem).
+2. Abra **http://localhost:5173**.
+3. Aba "Nova operação": preencha cedente, tipo, valor de face (ex.:
+   `100000.00`), prazo em meses (ex.: `3`) e moeda de pagamento. A
+   simulação deve aparecer à direita conforme você digita (debounce de
+   ~400ms) — sem precisar clicar em nada.
+4. Clique em "Adquirir recebível", depois "Liquidar agora".
+5. Aba "Extrato": a liquidação recém-criada deve aparecer na lista.
+
+A migration `V5__seed_default_rates.sql` já popula taxa base (1% a.m. para
+os dois tipos, em BRL e USD) e câmbio USD/BRL (5,4321) na subida — sem
+isso, `/pricing/simulate` falha com "nenhuma taxa base vigente cadastrada"
+porque as tabelas de configuração começam vazias em um banco novo. Usando
+os valores de exemplo acima (Duplicata Mercantil, R$100.000, 3 meses,
+BRL), o valor líquido exibido deve bater exatamente com o golden case C1
+(R$92.859,94) — uma boa forma de confirmar que a integração ponta a ponta
+está correta.
+
+Se precisar publicar/atualizar uma taxa manualmente depois:
+```bash
+curl -X POST http://localhost:8080/admin/base-rates \
+  -H "Content-Type: application/json" \
+  -d '{"receivableType":"DUPLICATA_MERCANTIL","currency":"BRL","rate":0.015}'
+
+curl -X POST http://localhost:8080/admin/fx-rates \
+  -H "Content-Type: application/json" \
+  -d '{"currencyPair":"USD/BRL","rate":5.50}'
+```
+
+### CORS
+
+Frontend (`:5173`) e backend (`:8080`) são origens diferentes para o
+navegador — sem CORS explícito, o `fetch()` do frontend falha com um erro
+de rede genérico (não um erro HTTP com corpo), e a UI mostra apenas
+"Falha ao simular" em vez da mensagem real da API. `CorsConfig` libera
+`http://localhost:5173` por padrão; para outro ambiente, defina a env var
+`CORS_ALLOWED_ORIGINS` (ver `docker-compose.yml`).
 
 ## Rodando os testes
 
@@ -98,7 +141,7 @@ srm-credit-engine/
 ✅ ADRs (`docs/adr/`) — banco relacional, monólito modular, rate lock de
    câmbio na aquisição, comunicação síncrona vs. EDA
 ✅ Design de alta escala (1M tx/min) — `docs/scale-design.md`
-⬜ Post-mortem do Anexo B — único item Staff/TL ainda pendente
+✅ Post-mortem do Anexo B — `docs/postmortem-anexo-b.md`
 
 ## Frontend
 

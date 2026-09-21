@@ -34,6 +34,9 @@ services:
       # env var); aqui simula o formato que um coletor de logs (ELK, Loki)
       # esperaria em producao.
       LOGGING_STRUCTURED_FORMAT_CONSOLE: ecs
+      # Explicito aqui (mesmo sendo o default) para documentar a relacao com
+      # a porta do frontend abaixo - se voce mudar uma, mude a outra.
+      CORS_ALLOWED_ORIGINS: http://localhost:5173
     ports:
       - "8080:8080"
 

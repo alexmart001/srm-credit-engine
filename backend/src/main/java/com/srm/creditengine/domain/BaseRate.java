@@ -44,6 +44,11 @@ public class BaseRate {
         this.validFrom = validFrom;
     }
 
+    /** Encerra a vigencia desta taxa - mesma logica de FxRate#closeValidityAt. */
+    public void closeValidityAt(Instant to) {
+        this.validTo = to;
+    }
+
     public Long getId() { return id; }
     public ReceivableType getReceivableType() { return receivableType; }
     public Currency getCurrency() { return currency; }

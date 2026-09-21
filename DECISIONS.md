@@ -25,24 +25,19 @@ e por que (item 10.3 do desafio).
   assíncrona só por causa desta dependência externa. Optamos por um
   timeout manual, síncrono, documentado no javadoc da classe.
 
-## Ainda pendente (nível Staff/TL restante)
+## Status da entrega
 
-Um único item do desafio ainda não foi tratado:
+Todos os itens do desafio (Fases 0–3, Sênior e Staff/TL) estão tratados:
+domínio, persistência (Flyway), motor de precificação (golden cases),
+idempotência + optimistic locking (`SettlementService`, testado com
+concorrência real), controllers REST + tratamento de erro, endpoint de
+simulação (`POST /pricing/simulate`), frontend funcional, observabilidade
+(logs estruturados + métricas Micrometer), resiliência na integração de
+câmbio, CI (GitHub Actions), `REVIEW.md` (Anexo A), `AI_USAGE.md`, ADRs
+(`docs/adr/`), diagramas C4 (`docs/c4-diagrams.md`), design de alta escala
+(`docs/scale-design.md`) e post-mortem do Anexo B
+(`docs/postmortem-anexo-b.md`).
 
-- **Exercício de incidente (Anexo B)** — post-mortem por escrito de um
-  incidente hipotético de liquidações duplicadas.
-
-Deixado por último porque o `REVIEW.md` (seção 3 deste documento) já
-adianta boa parte da causa raiz, o que exige cuidado para não fazer do
-post-mortem uma repetição do review em vez de um exercício de linha do
-tempo, contenção e prevenção sistêmica.
-
-O que **já está pronto** e não deveria ser reconstruído: domínio,
-persistência (Flyway), motor de precificação (golden cases), idempotência +
-optimistic locking (`SettlementService`, testado com concorrência real),
-controllers REST + tratamento de erro, endpoint de simulação
-(`POST /pricing/simulate`), frontend funcional, observabilidade (logs
-estruturados + métricas Micrometer), resiliência na integração de câmbio,
-CI (GitHub Actions), `REVIEW.md` (Anexo A), `AI_USAGE.md`, ADRs
-(`docs/adr/`), diagramas C4 (`docs/c4-diagrams.md`) e o design de alta
-escala (`docs/scale-design.md`).
+Os cortes de escopo desta v1 estão listados no topo deste documento
+(liquidação parcial, validação de limites por cedente, override manual de
+taxa por operação individual) — nenhum é uma omissão não intencional.

@@ -36,7 +36,7 @@ exatamente isso", nunca "decida por mim":
 
 ## 2. Casos concretos em que a IA errou (e como o processo detectou)
 
-Quatro exemplos reais desta implementação, não hipotéticos:
+Cinco exemplos reais desta implementação, não hipotéticos:
 
 ### 2.1 Bug de concorrência latente em consultas JPA (`NonUniqueResultException`)
 
@@ -99,7 +99,37 @@ ver o stack trace", mas que review nenhum (humano ou de IA) tinha pego
 antes — só a compilação real do projeto inteiro expôs. Corrigido
 adicionando o quarto `any()` nos quatro pontos.
 
-### O padrão comum aos quatro casos
+### 2.5 CORS ausente — só apareceu ao testar no navegador de verdade
+
+O backend nunca teve configuração de CORS. Todos os testes de integração
+(`ReceivableSettlementFlowIT` e os demais) usam `MockMvc`, que chama os
+controllers diretamente dentro da JVM — **nunca passa por um navegador
+real nem pela política de mesma origem**. Resultado: toda a suíte de
+testes passava (e passa) 100%, mas a primeira vez que o frontend real
+(porta 5173) chamou o backend real (porta 8080) de dentro de um navegador,
+a chamada foi bloqueada antes mesmo de chegar ao controller. O sintoma na
+UI era só "Falha ao simular" — uma mensagem genérica, porque um bloqueio
+de CORS chega ao código do frontend como erro de rede puro, sem corpo de
+resposta para exibir a mensagem real.
+
+**Como foi detectado:** só pela execução manual real — você testando a
+interface no navegador depois do `docker compose up`, o único passo do
+processo inteiro que nenhuma camada de teste automatizado (unitário,
+MockMvc, ou até um teste de contrato de API) cobre. Junto veio um segundo
+problema, de natureza completamente diferente: as tabelas de configuração
+(`base_rates`, `fx_rates`) começam vazias num banco novo, e não existia
+sequer um endpoint para popular taxa base manualmente (só o de câmbio
+tinha sido implementado) — um caso de **cobertura incompleta de um
+requisito do próprio enunciado** (item 4.1.1 pede atualização manual para
+"taxas", no plural, não só câmbio) que só ficou visível ao tentar usar o
+sistema de ponta a ponta pela primeira vez.
+
+**Correção:** `CorsConfig` liberando a origem do frontend (configurável via
+env var, não hardcoded), `AdminBaseRateController`/`BaseRateAdminService`
+fechando a paridade que faltava, e uma migration de seed
+(`V5__seed_default_rates.sql`) para o ambiente já subir testável.
+
+### O padrão comum aos cinco casos
 
 Os três primeiros foram pegos por **verificação ativa da própria IA**
 (grep de sanidade, análise do que uma mudança nova tornava possível) antes
@@ -116,6 +146,15 @@ inclusive quando a mudança parecia pequena e isolada (ex.: adicionar um
 parâmetro a uma query). O caso 2.4 é a prova concreta de que essa
 disciplina não foi excesso de cautela: sem ela, este bug teria ido para o
 repositório.
+
+O quinto caso ensina uma lição diferente dos outros quatro: nem `mvn test`
+passando a 100% é suficiente sozinho. Uma suíte de testes de integração
+inteira (`MockMvc`) pode estar verde e ainda assim esconder um problema que
+só existe na fronteira entre navegador e servidor — porque `MockMvc`
+nunca é um navegador. A implicação prática que levo disso: qualquer
+funcionalidade com frontend real precisa de pelo menos uma rodada de teste
+manual de ponta a ponta (`docker compose up` + navegador de verdade) antes
+de ser considerada pronta, não só a suíte automatizada passando.
 
 ## 3. O que eu decidi não delegar à IA, e por quê
 

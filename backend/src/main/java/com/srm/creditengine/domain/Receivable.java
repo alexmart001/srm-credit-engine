@@ -78,6 +78,14 @@ public class Receivable {
         this.lockedFxRate = lockedFxRate;
         this.acquiredAt = acquiredAt;
         this.status = ReceivableStatus.PENDENTE;
+        // BUG CORRIGIDO: sem isto, o Hibernate envia NULL explicito para
+        // created_at/updated_at no INSERT (ele sempre inclui todas as
+        // colunas mapeadas, nao confia no DEFAULT do banco) - violando o
+        // NOT NULL da coluna no MariaDB (modo estrito). Nao aparecia no H2
+        // dos testes porque o schema ali e' gerado pelas anotacoes JPA
+        // via ddl-auto=create-drop, nao pela migration Flyway real.
+        this.createdAt = acquiredAt;
+        this.updatedAt = acquiredAt;
     }
 
     public boolean isCrossCurrency() {
@@ -86,6 +94,7 @@ public class Receivable {
 
     public void markAsSettled() {
         this.status = ReceivableStatus.LIQUIDADO;
+        this.updatedAt = Instant.now();
     }
 
     // getters

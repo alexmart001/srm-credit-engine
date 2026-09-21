@@ -73,6 +73,10 @@ public class Settlement {
         this.effectiveRateApplied = effectiveRateApplied;
         this.fxRateUsed = fxRateUsed;
         this.settledAt = settledAt;
+        // Mesma correcao aplicada em Receivable: sem isto, o Hibernate
+        // envia NULL explicito para created_at, violando o NOT NULL da
+        // coluna no MariaDB.
+        this.createdAt = Instant.now();
     }
 
     public Long getId() { return id; }
